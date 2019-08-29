@@ -1,6 +1,20 @@
 "use strict";
 
 /**
+ * Sleep.
+ *
+ * @param {number} ms - Milliseconds to sleep.
+ * @returns {Promise} - Promise object.
+ */
+export async function sleep(ms: number) {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve();
+    }, ms);
+  });
+}
+
+/**
  * Generate random string.
  *
  * @param {number} length - Length of the string to generate.
