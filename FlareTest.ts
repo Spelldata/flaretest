@@ -30,7 +30,7 @@ export default class FlareTest {
     const self = this;
 
     describe("Cloudflare Pages", function() {
-      this.timeout(10000);
+      this.timeout(30000);
 
       beforeEach(async function() {
         await sleep(2000);
