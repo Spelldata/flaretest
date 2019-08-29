@@ -46,7 +46,7 @@ export default class SingleURLTest {
     if (this.cached === true) {
       this.assertCached();
     } else if (this.cached === false) {
-      this.assertNotCached();
+      await this.assertNotCached();
     }
 
     if (this.gzip === true) {
@@ -104,8 +104,23 @@ export default class SingleURLTest {
   };
 
   /** Assert if the content is NOT cached. */
-  private assertNotCached() {
-    expect(this.res.headers.get("CF-Cache-Status")).to.be.null;
+  private async assertNotCached(res: Response = this.res, isRetry: boolean = false) {
+    const cfCacheStatus = res.headers.get("CF-Cache-Status");
+
+    if (cfCacheStatus === null) {
+      expect(cfCacheStatus).to.be.null; // Success
+    } else if (cfCacheStatus === "MISS") {
+      if (isRetry) { // If always MISS
+        expect(cfCacheStatus).to.equal("MISS"); // Success
+      } else {
+        const secondRes = await this.fetch(res.url);
+        await this.assertNotCached(secondRes, true);
+      }
+    } else if (cfCacheStatus === "HIT"){
+      expect.fail("Expected no CF-Cache-Status but actually HIT");
+    } else {
+      expect.fail(`Unexpected CF-Cache-Status value ${cfCacheStatus}`);
+    }
   };
 
   /** Assert if the content is gzipped. */
