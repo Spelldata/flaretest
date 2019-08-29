@@ -91,12 +91,16 @@ export default class SingleURLTest {
 
     if (cfCacheStatus === "HIT") {
       expect(cfCacheStatus).to.equal("HIT");
-    } else if (cfCacheStatus === "MISS" || cfCacheStatus === "EXPIRED") {
+    } else if (
+      cfCacheStatus === "MISS" ||
+      cfCacheStatus === "EXPIRED" ||
+      cfCacheStatus === "BYPASS"
+    ) {
       if (!isRetry) {
         const secondRes = await this.fetch(res.url);
         await this.assertCached(secondRes, true);
       } else {
-        expect.fail("CF-Cache-Status might always be MISS or EXPIRED");
+        expect.fail(`CF-Cache-Status might always be ${cfCacheStatus}`);
       }
     } else {
       expect.fail("CF-Cache-Status is not HIT | MISS | EXPIRED but " + cfCacheStatus);
