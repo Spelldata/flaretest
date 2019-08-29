@@ -35,7 +35,7 @@ export default class FlareTest {
         for (const path of config.paths) {
           for (const [ deviceType, userAgentString ] of Object.entries(self.userAgents)) {
             it(`${path} (${deviceType})`, async function() {
-              new SingleURLTest(self.hostname, path, {
+              const singleURLTest = new SingleURLTest(self.hostname, path, {
                 userAgent: userAgentString,
                 cached: config.cached,
                 gzip: config.gzip,
@@ -43,7 +43,8 @@ export default class FlareTest {
                 status: config.status,
                 redirectTo: config.redirectTo,
                 cacheLevel: config.cacheLevel,
-              }).run();
+              });
+              await singleURLTest.run();
             });
           }
         }
