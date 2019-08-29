@@ -44,7 +44,7 @@ export default class SingleURLTest {
     this.res = await this.fetch("https://" + this.hostname + this.path);
 
     if (this.cached === true) {
-      this.assertCached();
+      await this.assertCached();
     } else if (this.cached === false) {
       await this.assertNotCached();
     }
