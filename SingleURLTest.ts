@@ -94,7 +94,9 @@ export default class SingleURLTest {
     } else if (
       cfCacheStatus === "MISS" ||
       cfCacheStatus === "EXPIRED" ||
-      cfCacheStatus === "BYPASS"
+      cfCacheStatus === "BYPASS" ||
+      cfCacheStatus === "REVALIDATED" ||
+      cfCacheStatus === "UPDATING"
     ) {
       if (!isRetry) {
         const secondRes = await this.fetch(res.url);
@@ -120,8 +122,12 @@ export default class SingleURLTest {
         const secondRes = await this.fetch(res.url);
         await this.assertNotCached(secondRes, true);
       }
-    } else if (cfCacheStatus === "HIT"){
-      expect.fail("Expected no CF-Cache-Status but actually HIT");
+    } else if (
+      cfCacheStatus === "HIT" ||
+      cfCacheStatus === "REVALIDATED" ||
+      cfCacheStatus === "UPDATING"
+    ){
+      expect.fail(`Expected no CF-Cache-Status but actually ${cfCacheStatus}`);
     } else {
       expect.fail(`Unexpected CF-Cache-Status value ${cfCacheStatus}`);
     }
@@ -131,7 +137,7 @@ export default class SingleURLTest {
   private assertGzipped() {
     expect(
       this.res.headers.get("Content-Encoding"),
-      Array.from(this.res.headers.entries()).map(([ key,val ]) => `${key}: ${val}`)
+      // Array.from(this.res.headers.entries()).map(([ key,val ]) => `${key}: ${val}`)
     ).to.equal("gzip");
   };
 
@@ -172,6 +178,9 @@ export default class SingleURLTest {
 
   /** Assert if Cloudflare delivers a different resource each time the query string changes. */
   private async assertCacheLevelIsStandard() {
+    // TODO allow path with query string
+    // Currently if e.g. /foo?bar=boo is given,
+    // the URLs will be /foo?bar=boo?ztlGaZfgDIzR=APkglmNsNFOg
     const url1 = `https://${this.hostname}${this.path}?${randomStr(12)}=${randomStr(12)}`;
     const url2 = `https://${this.hostname}${this.path}?${randomStr(12)}=${randomStr(12)}`;
 
