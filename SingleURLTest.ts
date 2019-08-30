@@ -43,6 +43,10 @@ export default class SingleURLTest {
   public async run() {
     this.res = await this.fetch("https://" + this.hostname + this.path);
 
+    if (this.status) {
+      this.expectStatusCode(this.status);
+    }
+
     if (this.cached === true) {
       await this.assertCached();
     } else if (this.cached === false) {
@@ -59,10 +63,6 @@ export default class SingleURLTest {
       await this.assertHTTPSRedirectEnabled();
     } else if (this.redirectHttps === false) {
       await this.assertHTTPSRedirectDisabled();
-    }
-
-    if (this.status) {
-      this.expectStatusCode(this.status);
     }
 
     if (this.redirectTo) {
