@@ -1,7 +1,6 @@
 "use strict";
 
 import SingleURLTest from "./SingleURLTest";
-import { sleep } from "./utils";
 
 interface FlareTestOptions {
   userAgents: object;
@@ -31,10 +30,6 @@ export default class FlareTest {
 
     describe("Cloudflare Pages", function() {
       this.timeout(30000);
-
-      beforeEach(async function() {
-        await sleep(2000);
-      });
 
       for (const config of configs) {
         for (const path of config.paths) {

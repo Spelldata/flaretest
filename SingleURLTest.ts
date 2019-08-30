@@ -4,7 +4,7 @@ import { expect } from "chai";
 import fetch from "node-fetch";
 import { Headers, Response } from "node-fetch";
 
-import { randomStr } from "./utils";
+import { randomStr, sleep } from "./utils";
 
 interface SingleURLTestOptions {
   userAgent: string;
@@ -195,12 +195,16 @@ export default class SingleURLTest {
   };
 
   private async fetch(url: string): Promise<Response> {
-    return fetch(url, {
+    const res = await fetch(url, {
       method: "GET",
       redirect: "manual",
       headers: new Headers({
         "User-Agent": this.userAgent,
       }),
     });
+
+    await sleep(2000);
+
+    return res;
   }
 }
