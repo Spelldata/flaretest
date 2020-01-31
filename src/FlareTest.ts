@@ -8,12 +8,12 @@ interface FlareTestOptions {
 
 interface FlareTestConfig   {
   paths: string[];
-  cached: boolean;
-  gzip: boolean;
-  redirectHttps: boolean;
-  status: number;
-  redirectTo: string;
-  cacheLevel: string;
+  cached?: boolean;
+  gzip?: boolean;
+  redirectHttps?: boolean;
+  status?: number;
+  redirectTo?: string;
+  cacheLevel?: string;
 }
 
 export default class FlareTest {

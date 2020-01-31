@@ -8,12 +8,12 @@ import { randomStr, sleep } from "./utils";
 
 interface SingleURLTestOptions {
   userAgent: string;
-  cached: boolean;
-  gzip: boolean;
-  redirectHttps: boolean;
-  status: number;
-  redirectTo: string;
-  cacheLevel: string;
+  cached?: boolean;
+  gzip?: boolean;
+  redirectHttps?: boolean;
+  status?: number;
+  redirectTo?: string;
+  cacheLevel?: string;
 }
 
 export default class SingleURLTest {
