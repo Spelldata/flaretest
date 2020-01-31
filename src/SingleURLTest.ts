@@ -1,6 +1,6 @@
 "use strict";
 
-import { expect } from "chai";
+import { strict as assert } from "assert";
 import fetch from "node-fetch";
 import { Headers, Response } from "node-fetch";
 
@@ -72,11 +72,11 @@ export default class SingleURLTest {
     if (this.cacheLevel === "standard") {
       await this.assertCacheLevelIsStandard();
     } else if (this.cacheLevel === "ignoreQueryString") {
-      expect.fail("ignoreQueryString is not yet supported.");
+      assert.fail("ignoreQueryString is not yet supported.");
     } else if (this.cacheLevel === "noQueryString") {
-      expect.fail("noQueryString is not yet supported.");
+      assert.fail("noQueryString is not yet supported.");
     } else if (typeof this.cacheLevel === "string") {
-      expect.fail("Unsupported cacheLevel: " + this.cacheLevel);
+      assert.fail("Unsupported cacheLevel: " + this.cacheLevel);
     }
   }
 
@@ -90,7 +90,10 @@ export default class SingleURLTest {
     const cfCacheStatus = res.headers.get("CF-Cache-Status");
 
     if (cfCacheStatus === "HIT") {
-      expect(cfCacheStatus).to.equal("HIT");
+      assert.strictEqual(
+        cfCacheStatus, "HIT",
+        `CF-Cache-Status should be HIT but actually ${typeof cfCacheStatus === "undefined" ? "the header field does not exist" : cfCacheStatus}`
+      );
     } else if (
       cfCacheStatus === "MISS" ||
       cfCacheStatus === "EXPIRED" ||
@@ -102,10 +105,10 @@ export default class SingleURLTest {
         const secondRes = await this.fetch(res.url);
         await this.assertCached(secondRes, true);
       } else {
-        expect.fail(`CF-Cache-Status might always be ${cfCacheStatus}`);
+        assert.fail(`CF-Cache-Status might always be ${cfCacheStatus}`);
       }
     } else {
-      expect.fail("CF-Cache-Status is not HIT | MISS | EXPIRED but " + cfCacheStatus);
+      assert.fail("CF-Cache-Status is not HIT | MISS | EXPIRED but " + cfCacheStatus);
     }
   };
 
@@ -127,32 +130,40 @@ export default class SingleURLTest {
       cfCacheStatus === "REVALIDATED" ||
       cfCacheStatus === "UPDATING"
     ){
-      expect.fail(`Expected no CF-Cache-Status but actually ${cfCacheStatus}`);
+      assert.fail(`Expected no CF-Cache-Status but actually ${cfCacheStatus}`);
     } else {
-      expect.fail(`Unexpected CF-Cache-Status value ${cfCacheStatus}`);
+      assert.fail(`Unexpected CF-Cache-Status value ${cfCacheStatus}`);
     }
   };
 
   /** Assert if the content is gzipped. */
   private assertGzipped() {
-    expect(
-      this.res.headers.get("Content-Encoding"),
-      // Array.from(this.res.headers.entries()).map(([ key,val ]) => `${key}: ${val}`)
-    ).to.equal("gzip");
+    const contentEncoding = this.res.headers.get("Content-Encoding");
+    assert.strictEqual(
+      contentEncoding, "gzip",
+      `Expected Content-Encoding to be \"gzip\", but actually ${contentEncoding}`,
+    );
   };
 
   /** Assert if the content is NOT gzipped. */
   private assertNotGzipped() {
-    expect(this.res.headers.get("Content-Encoding")).to.be.null;
+    const contentEncoding = this.res.headers.get("Content-Encoding");
+    assert.strictEqual(
+      contentEncoding, null,
+      `Expected Content-Encoding NOT to be set but actually ${contentEncoding} returned.`,
+    );
   };
 
   /** Assert if HTTPS redirect is enabled. */
   private async assertHTTPSRedirectEnabled() {
     const res: Response = await this.fetch("http://" + this.hostname + this.path);
 
-    expect(res.status).to.equal(301);
-    expect(res.headers.get("Location"))
-      .to.equal(`https://${this.hostname}${this.path}`);
+    const actualRedirectLocation = res.headers.get("Location");
+
+    const errMsg = `Expected HTTPS redirection enabled but actually disabled. (Actually HTTP status code is ${res.status} and redirecting to ${actualRedirectLocation}.`;
+
+    assert.strictEqual(res.status, 301, errMsg);
+    assert.strictEqual(actualRedirectLocation, `https://${this.hostname}${this.path}`);
   };
 
   /** Assert if HTTPS redirect is disabled. */
@@ -160,20 +171,33 @@ export default class SingleURLTest {
     const url = "http://" + this.hostname + this.path;
     const res: Response = await this.fetch(url);
 
-    expect(res.url).to.equal(url);
-    expect(res.status).not.to.equal(301);
-    expect(res.status).to.equal(200);
+    assert.strictEqual(res.url, url);
+    assert.notStrictEqual(
+      res.status, 301,
+      "Expected status code NOT to be 30x, but actually 301 returned."
+    );
+    assert.strictEqual(res.status, 200);
   };
 
   /** Assert if expected status code is returned. */
   private expectStatusCode(statusCode: number) {
-    expect(this.res.status).to.equal(statusCode);
+    assert.strictEqual(
+      this.res.status, statusCode,
+      `Expected HTTP status code ${statusCode}, but actually ${this.res.status} returned.`,
+    );
   };
 
   /** Assert if redirected to the expected URL. */
   private assertRedirect() {
-    expect(this.res.status).to.equal(301);
-    expect(this.redirectTo).to.equal(this.res.headers.get("Location"));
+    assert.strictEqual(
+      this.res.status, 301,
+      `Expected HTTP status code 301, but actually ${this.res.status} returned.`,
+    );
+    const location = this.res.headers.get("Location");
+    assert.strictEqual(
+      location, this.redirectTo,
+      `Expected redirection to ${this.redirectTo}, but actually ${location ? "redirected to " + location : "no Location header found"}`,
+    );
   };
 
   /** Assert if Cloudflare delivers a different resource each time the query string changes. */
@@ -187,20 +211,32 @@ export default class SingleURLTest {
     // First access to url1 should be MISS
     console.log("Accessing " + url1);
     const res1_1st = await this.fetch(url1);
-    expect(res1_1st.headers.get("CF-Cache-Status")).to.equals("MISS");
+    assert.strictEqual(
+      res1_1st.headers.get("CF-Cache-Status"), "MISS",
+      `In the first access for the first URL ${url1}, CF-Cache-Status shoule be MISS but actually ${res1_1st.headers.get("CF-Cache-Status")}. Did you purge cache before the test?`
+    );
 
     // Second access to url1 should be HIT
     const res1_2nd = await this.fetch(url1);
-    expect(res1_2nd.headers.get("CF-Cache-Status")).to.equals("HIT");
+    assert.strictEqual(
+      res1_2nd.headers.get("CF-Cache-Status"), "HIT",
+      `In the second access for the first URL ${url1}, CF-Cache-Status should be HIT but actually ${res1_2nd.headers.get("CF-Cache-Status")}. Maybe this URL is not cached.`
+    );
 
     // First access to url2 should be MISS
     console.log("Accessing " + url2);
     const res2_1st  = await this.fetch(url2);
-    expect(res2_1st.headers.get("CF-Cache-Status")).to.equals("MISS");
+    assert.strictEqual(
+      res2_1st.headers.get("CF-Cache-Status"), "MISS",
+      `In the first access for the second URL ${url2}, CF-Cache-Status should be MISS but actually ${res2_1st.headers.get("CF-Cache-Status")}. Query string might be ignored to cache contents.`,
+    );
 
     // Second access to url2 should be HIT
     const res2_2nd = await this.fetch(url2);
-    expect(res2_2nd.headers.get("CF-Cache-Status")).to.equals("HIT");
+    assert.strictEqual(
+      res2_2nd.headers.get("CF-Cache-Status"), "HIT",
+      `In the second access for the second URL ${url2}, CF-Cache-Status should be HIT but actually ${res2_2nd.headers.get("CF-Cache-Status")}. Maybe this URL is not cached.`,
+    );
   };
 
   private async fetch(url: string): Promise<Response> {
