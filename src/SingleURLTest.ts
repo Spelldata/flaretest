@@ -168,12 +168,19 @@ export default class SingleURLTest {
     const url = "http://" + this.hostname + this.path;
     const res: Response = await this.fetch(url);
 
-    assert.strictEqual(res.url, url);
     assert.notStrictEqual(
       res.status, 301,
       "Expected status code NOT to be 30x, but actually 301 returned."
     );
-    assert.strictEqual(res.status, 200);
+    assert.notStrictEqual(
+      res.status, 302,
+      "Expected status code NOT to be 30x, but actually 302 returned."
+    );
+    const location = res.headers.get("Location");
+    assert.strictEqual(
+      location, null,
+      `Expected no Location header field exists, but actually it exists and points to ${location}`
+    );
   };
 
   /** Assert if expected status code is returned. */
