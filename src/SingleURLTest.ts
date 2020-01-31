@@ -165,7 +165,7 @@ export default class SingleURLTest {
     expect(res.status).to.equal(200);
   };
 
-  /** Assert if 200 returned. */
+  /** Assert if expected status code is returned. */
   private expectStatusCode(statusCode: number) {
     expect(this.res.status).to.equal(statusCode);
   };
