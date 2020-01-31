@@ -90,10 +90,7 @@ export default class SingleURLTest {
     const cfCacheStatus = res.headers.get("CF-Cache-Status");
 
     if (cfCacheStatus === "HIT") {
-      assert.strictEqual(
-        cfCacheStatus, "HIT",
-        `CF-Cache-Status should be HIT but actually ${typeof cfCacheStatus === "undefined" ? "the header field does not exist" : cfCacheStatus}`
-      );
+      // Success
     } else if (
       cfCacheStatus === "MISS" ||
       cfCacheStatus === "EXPIRED" ||
@@ -117,10 +114,10 @@ export default class SingleURLTest {
     const cfCacheStatus = res.headers.get("CF-Cache-Status");
 
     if (cfCacheStatus === null) {
-      expect(cfCacheStatus).to.be.null; // Success
+      // Success
     } else if (cfCacheStatus === "MISS") {
       if (isRetry) { // If always MISS
-        expect(cfCacheStatus).to.equal("MISS"); // Success
+        // Success
       } else {
         const secondRes = await this.fetch(res.url);
         await this.assertNotCached(secondRes, true);
