@@ -5,7 +5,7 @@
   "keywords": [],
   "author": "Jumpei Ogawa <jumpei.ogawa@spelldata.co.jp>",
   "license": "Apache-2.0",
-  "main": "FlareTest.js",
+  "main": "dist/FlareTest.js",
   "scripts": {
     "build": "tsc",
     "dev": "ts-node FlareTest.ts",
