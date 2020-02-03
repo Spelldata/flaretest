@@ -50,7 +50,7 @@ jobs:
           node-version: 12
           registry-url: https://registry.npmjs.org/
       - run: yarn
-      - run: yarn build && yarn publish
+      - run: yarn build && yarn run release
         env:
           NODE_AUTH_TOKEN: ${{secrets.NPM_AUTH_TOKEN}}
     if: github.event_name == 'release'
