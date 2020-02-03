@@ -5,25 +5,34 @@
   "keywords": [],
   "author": "Jumpei Ogawa <jumpei.ogawa@spelldata.co.jp>",
   "license": "Apache-2.0",
-  "main": "FlareTest.js",
+  "main": "dist/FlareTest.js",
   "scripts": {
     "build": "tsc",
     "dev": "ts-node FlareTest.ts",
     "lint": "eslint --ext=.js,.jsx,.ts,.tsx .",
     "release": "yarn publish --access public --non-interactive",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "yarn run build && sudo NODE_TLS_REJECT_UNAUTHORIZED=0 npx jest"
   },
   "dependencies": {
-    "chai": "^4.2.0",
     "node-fetch": "^2.6.0"
   },
   "devDependencies": {
     "@phanect/eslint-plugin": "latest",
-    "@types/chai": "^4.2.0",
-    "@types/mocha": "^5.2.7",
+    "@types/express": "^4.17.2",
+    "@types/jest": "^25.1.1",
     "@types/node": "^12.7.2",
     "@types/node-fetch": "^2.5.0",
+    "express": "^4.17.1",
+    "jest": "^25.1.0",
+    "ts-jest": "^25.1.0",
     "ts-node": "^8.3.0",
     "typescript": "^3.5.3"
+  },
+  "jest": {
+    "clearMocks": true,
+    "testEnvironment": "node",
+    "transform": {
+      "^.+\\.ts$": "ts-jest"
+    }
   }
 }
