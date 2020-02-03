@@ -72,7 +72,7 @@ export default class SingleURLTest {
     if (this.cacheLevel === "standard") {
       await this.assertCacheLevelIsStandard();
     } else if (this.cacheLevel === "ignoreQueryString") {
-      assert.fail("ignoreQueryString is not yet supported.");
+      await this.assertCacheLevelIsIgnoreQueryString();
     } else if (this.cacheLevel === "noQueryString") {
       assert.fail("noQueryString is not yet supported.");
     } else if (typeof this.cacheLevel === "string") {
@@ -240,6 +240,39 @@ export default class SingleURLTest {
     assert.strictEqual(
       res2_2nd.headers.get("CF-Cache-Status"), "HIT",
       `In the second access for the second URL ${url2}, CF-Cache-Status should be HIT but actually ${res2_2nd.headers.get("CF-Cache-Status")}. Maybe this URL is not cached.`,
+    );
+  };
+
+  /** Assert if Cloudflare delivers the same resource to everyone independent of the query string. */
+  private async assertCacheLevelIsIgnoreQueryString() {
+    // TODO allow path with query string
+    // Currently if e.g. /foo?bar=boo is given,
+    // the URLs will be /foo?bar=boo?ztlGaZfgDIzR=APkglmNsNFOg
+    const url1 = `https://${this.hostname}${this.path}?${randomStr(12)}=${randomStr(12)}`;
+    const url2 = `https://${this.hostname}${this.path}?${randomStr(12)}=${randomStr(12)}`;
+
+    // First access to url1 should be MISS
+    console.log(`Accessing ${url1}`);
+    const res1_1st = await this.fetch(url1);
+    assert.strictEqual(
+      res1_1st.headers.get("CF-Cache-Status"), "MISS",
+      `In the first access for the first URL ${url1}, CF-Cache-Status should be MISS but actually ${res1_1st.headers.get("CF-Cache-Status")}. Did you purge cache before the test?`
+    );
+
+    // Second access to url1 should be HIT
+    console.log(`Accessing ${url1} again`);
+    const res1_2nd = await this.fetch(url1);
+    assert.strictEqual(
+      res1_2nd.headers.get("CF-Cache-Status"), "HIT",
+      `In the second access for the first URL ${url1}, CF-Cache-Status should be HIT but actually ${res1_2nd.headers.get("CF-Cache-Status")}. Maybe this URL is not cached.`
+    );
+
+    // First access to url2 should be HIT
+    console.log(`Accessing ${url2}`);
+    const res2  = await this.fetch(url2);
+    assert.strictEqual(
+      res2.headers.get("CF-Cache-Status"), "HIT",
+      `In the first access for the second URL ${url2}, CF-Cache-Status should be HIT but actually ${res2.headers.get("CF-Cache-Status")}. Cloudflare may cache by query string.`,
     );
   };
 

@@ -84,6 +84,19 @@ test("Cache Level: standard", async () => {
   ])).resolves.toBeUndefined();
 }, 30000);
 
+test("Cache Level: ignoreQueryString", async () => {
+  await expect(flaretest.run([
+    {
+      paths: [
+        "/cache-level-ignore-query-string",
+      ],
+      cached: true,
+      status: 200,
+      cacheLevel: "ignoreQueryString",
+    },
+  ])).resolves.toBeUndefined();
+}, 30000);
+
 test("Detect contents which should be cached but actually not cached", async () => {
   await expect(flaretest.run([
     {
@@ -133,4 +146,17 @@ test("Expected Cache Level: standard, but detected ignoreQueryString", async () 
       cacheLevel: "standard",
     },
   ])).rejects.toThrow(/^In the first access for the second URL https:\/\/localhost\/cache-level-ignore-query-string\?[A-Za-z]+=[A-Za-z]+, CF-Cache-Status should be MISS but actually HIT. Query string might be ignored to cache contents.$/);
+}, 30000);
+
+test("Expected Cache Level: ignoreQueryString, but detected standard", async () => {
+  await expect(flaretest.run([
+    {
+      paths: [
+        "/cache-level-standard",
+      ],
+      cached: true,
+      status: 200,
+      cacheLevel: "ignoreQueryString",
+    },
+  ])).rejects.toThrow(/^In the first access for the second URL https:\/\/localhost\/cache-level-standard\?[A-Za-z]+=[A-Za-z]+, CF-Cache-Status should be HIT but actually MISS. Cloudflare may cache by query string.$/);
 }, 30000);
