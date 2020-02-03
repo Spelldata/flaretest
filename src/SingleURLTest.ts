@@ -217,7 +217,7 @@ export default class SingleURLTest {
     const res1_1st = await this.fetch(url1);
     assert.strictEqual(
       res1_1st.headers.get("CF-Cache-Status"), "MISS",
-      `In the first access for the first URL ${url1}, CF-Cache-Status shoule be MISS but actually ${res1_1st.headers.get("CF-Cache-Status")}. Did you purge cache before the test?`
+      `In the first access for the first URL ${url1}, CF-Cache-Status should be MISS but actually ${res1_1st.headers.get("CF-Cache-Status")}. Did you purge cache before the test?`
     );
 
     // Second access to url1 should be HIT
