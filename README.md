@@ -1,5 +1,7 @@
 # flaretest
 
+![GitHub Actions](https://github.com/Spelldata/flaretest/workflows/Actions/badge.svg)
+
 Cache rule testing utility for Cloudflare
 
 ## Install
