@@ -33,6 +33,10 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
+# lock files - they are ignored when we publish to npm
+package-lock.json
+yarn.lock
+
 # Build tools: Babel & Webpack
 dist/
 
