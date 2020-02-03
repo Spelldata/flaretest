@@ -41,6 +41,19 @@ export default class SingleURLTest {
   }
 
   public async run() {
+    // Cache level tests must be done before any access is made.
+    // If the page is accessed before, the page is cached in the Cloudflare edge and
+    // the test would fail even if the page is configured correctly.
+    if (this.cacheLevel === "standard") {
+      await this.assertCacheLevelIsStandard();
+    } else if (this.cacheLevel === "ignoreQueryString") {
+      await this.assertCacheLevelIsIgnoreQueryString();
+    } else if (this.cacheLevel === "noQueryString") {
+      assert.fail("noQueryString is not yet supported.");
+    } else if (typeof this.cacheLevel === "string") {
+      assert.fail("Unsupported cacheLevel: " + this.cacheLevel);
+    }
+
     this.res = await this.fetch("https://" + this.hostname + this.path);
 
     if (this.status) {
@@ -67,16 +80,6 @@ export default class SingleURLTest {
 
     if (this.redirectTo) {
       this.assertRedirect();
-    }
-
-    if (this.cacheLevel === "standard") {
-      await this.assertCacheLevelIsStandard();
-    } else if (this.cacheLevel === "ignoreQueryString") {
-      await this.assertCacheLevelIsIgnoreQueryString();
-    } else if (this.cacheLevel === "noQueryString") {
-      assert.fail("noQueryString is not yet supported.");
-    } else if (typeof this.cacheLevel === "string") {
-      assert.fail("Unsupported cacheLevel: " + this.cacheLevel);
     }
   }
 
