@@ -23,14 +23,14 @@ $ npm install --save-dev flaretest
 - `hostname`: `string` - A hostname of the test target website
 - `options.userAgents`: `{ [userAgentName: string]: string }` - User agent strings which FlareTest sends to the test target website
 
-### FlareTest.prototype.run(testconfigs)
+### `FlareTest.prototype.run(testconfigs)`
 
 - `testconfigs`: `object[]` - Array of test configs
-- `testconfigs[].paths`: string[] - Array of paths to test
-- `testconfigs[].cached`: boolean - If target paths should be cached by Cloudflare edge
-- `testconfigs[].redirectHttps`: boolean - If it forces redirection to HTTPS URL when users open the target paths
-- `testconfigs[].status`: number - Expected status code
-- `testconfigs[].cacheLevel`: string - Expected cache level. `standart`, `ignoreQueryString`, or `noQueryString`. **You need to purge cache before testing cache level, or the test may fail.** Currently `noQueryString` is not supported yet.
+- `testconfigs[].paths`: `string[]` - Array of paths to test
+- `testconfigs[].cached`: `boolean` - If target paths should be cached by Cloudflare edge
+- `testconfigs[].redirectHttps`: `boolean` - If it forces redirection to HTTPS URL when users open the target paths
+- `testconfigs[].status`: `number` - Expected status code
+- `testconfigs[].cacheLevel`: `string` - Expected cache level. `standart`, `ignoreQueryString`, or `noQueryString`. **You need to purge cache before testing cache level, or the test may fail.** Currently `noQueryString` is not supported yet.
 
 ## Example
 
