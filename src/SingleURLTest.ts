@@ -116,7 +116,7 @@ export default class SingleURLTest {
   private async assertNotCached(res: Response = this.res, isRetry: boolean = false) {
     const cfCacheStatus = res.headers.get("CF-Cache-Status");
 
-    if (cfCacheStatus === null) {
+    if (cfCacheStatus === null || cfCacheStatus === "DYNAMIC") {
       // Success
     } else if (cfCacheStatus === "MISS") {
       if (isRetry) { // If always MISS

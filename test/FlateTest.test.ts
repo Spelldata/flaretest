@@ -45,6 +45,19 @@ test("Not cached, force HTTPS redirect, 200", async () => {
   ])).resolves.toBeUndefined();
 }, 10000);
 
+test("Not cached (DYNAMIC), force HTTPS redirect, 200", async () => {
+  await expect(flaretest.run([
+    {
+      paths: [
+        "/nocache_dynamic-https-200",
+      ],
+      cached: false,
+      redirectHttps: true,
+      status: 200,
+    },
+  ])).resolves.toBeUndefined();
+}, 10000);
+
 test("Cached, no HTTPS redirect, 200", async () => {
   await expect(flaretest.run([
     {
@@ -63,6 +76,19 @@ test("Not cached, no HTTPS redirect, 200", async () => {
     {
       paths: [
         "/nocache-nohttps-200",
+      ],
+      cached: false,
+      redirectHttps: false,
+      status: 200,
+    },
+  ])).resolves.toBeUndefined();
+}, 30000);
+
+test("Not cached, no HTTPS redirect, 200", async () => {
+  await expect(flaretest.run([
+    {
+      paths: [
+        "/nocache_dynamic-nohttps-200",
       ],
       cached: false,
       redirectHttps: false,

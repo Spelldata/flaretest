@@ -91,6 +91,19 @@ export class Server {
       res.send("content");
     });
 
+    app.get("/nocache_dynamic-https-200", (req, res) => {
+      if (req.protocol === "http") {
+        return res.redirect(301, `https://${req.hostname}${req.url}`);
+      }
+
+      res.set({
+        "CF-Cache-Status": "DYNAMIC",
+      });
+
+      res.statusCode = 200;
+      res.send("content");
+    });
+
     app.get("/cached-nohttps-200", (req, res) => {
       /* No HTTPS redirect */
 
@@ -104,6 +117,17 @@ export class Server {
     app.get("/nocache-nohttps-200", (req, res) => {
       /* No CF-Cache-Status header */
       /* No HTTPS redirect */
+
+      res.statusCode = 200;
+      res.send("content");
+    });
+
+    app.get("/nocache_dynamic-nohttps-200", (req, res) => {
+      /* No HTTPS redirect */
+
+      res.set({
+        "CF-Cache-Status": "DYNAMIC",
+      });
 
       res.statusCode = 200;
       res.send("content");
