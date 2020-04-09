@@ -4,6 +4,10 @@
 
 Cache rule testing utility for Cloudflare
 
+## Requirements
+
+Node.js 10+
+
 ## Install
 
 ```shell
