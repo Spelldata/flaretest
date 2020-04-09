@@ -58,6 +58,8 @@ export class Server {
     http: number,
     https: number,
   };
+  /** If it is just after cache purged and any cached contents return with CF-Cache-Status: MISS */
+  private purged = true;
   private accessed: { [key: string]: boolean } = {};
 
   constructor(port: { http: number, https: number }) {
@@ -76,6 +78,20 @@ export class Server {
       res.set({
         "CF-Cache-Status": "HIT",
       });
+      res.statusCode = 200;
+      res.send("content");
+    });
+
+    app.get("/cached_miss_then_hit-https-200", (req, res) => {
+      if (req.protocol === "http") {
+        return res.redirect(301, `https://${req.hostname}${req.url}`);
+      }
+
+      res.set({
+        "CF-Cache-Status": this.purged ? "MISS" : "HIT",
+      });
+      this.purged = false;
+
       res.statusCode = 200;
       res.send("content");
     });
@@ -123,6 +139,18 @@ export class Server {
       res.set({
         "CF-Cache-Status": "HIT",
       });
+      res.statusCode = 200;
+      res.send("content");
+    });
+
+    app.get("/cached_miss_then_hit-nohttps-200", (req, res) => {
+      /* No HTTPS redirect */
+
+      res.set({
+        "CF-Cache-Status": this.purged ? "MISS" : "HIT",
+      });
+      this.purged = false;
+
       res.statusCode = 200;
       res.send("content");
     });

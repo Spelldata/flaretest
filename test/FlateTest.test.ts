@@ -32,6 +32,19 @@ test("Cached, force HTTPS redirect, 200", async () => {
   ])).resolves.toBeUndefined();
 }, 10000);
 
+test("Cached (MISS on first access, HIT on next access), force HTTPS redirect, 200", async () => {
+  await expect(flaretest.run([
+    {
+      paths: [
+        "/cached_miss_then_hit-https-200",
+      ],
+      cached: true,
+      redirectHttps: true,
+      status: 200,
+    },
+  ])).resolves.toBeUndefined();
+}, 30000);
+
 test("Not cached, force HTTPS redirect, 200", async () => {
   await expect(flaretest.run([
     {
@@ -84,6 +97,19 @@ test("Cached, no HTTPS redirect, 200", async () => {
     },
   ])).resolves.toBeUndefined();
 }, 10000);
+
+test("Cached (MISS on first access, HIT on next access), no HTTPS redirect, 200", async () => {
+  await expect(flaretest.run([
+    {
+      paths: [
+        "/cached_miss_then_hit-nohttps-200",
+      ],
+      cached: true,
+      redirectHttps: false,
+      status: 200,
+    },
+  ])).resolves.toBeUndefined();
+}, 30000);
 
 test("Not cached, no HTTPS redirect, 200", async () => {
   await expect(flaretest.run([
