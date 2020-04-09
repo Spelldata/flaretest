@@ -58,6 +58,8 @@ export class Server {
     http: number,
     https: number,
   };
+  /** If it is just after cache purged and any cached contents return with CF-Cache-Status: MISS */
+  private purged = true;
   private accessed: { [key: string]: boolean } = {};
 
   constructor(port: { http: number, https: number }) {
@@ -80,12 +82,52 @@ export class Server {
       res.send("content");
     });
 
+    app.get("/cached_miss_then_hit-https-200", (req, res) => {
+      if (req.protocol === "http") {
+        return res.redirect(301, `https://${req.hostname}${req.url}`);
+      }
+
+      res.set({
+        "CF-Cache-Status": this.purged ? "MISS" : "HIT",
+      });
+      this.purged = false;
+
+      res.statusCode = 200;
+      res.send("content");
+    });
+
     app.get("/nocache-https-200", (req, res) => {
       if (req.protocol === "http") {
         return res.redirect(301, `https://${req.hostname}${req.url}`);
       }
 
       /* No CF-Cache-Status header */
+
+      res.statusCode = 200;
+      res.send("content");
+    });
+
+    app.get("/nocache_always_miss-https-200", (req, res) => {
+      if (req.protocol === "http") {
+        return res.redirect(301, `https://${req.hostname}${req.url}`);
+      }
+
+      res.set({
+        "CF-Cache-Status": "MISS",
+      });
+
+      res.statusCode = 200;
+      res.send("content");
+    });
+
+    app.get("/nocache_dynamic-https-200", (req, res) => {
+      if (req.protocol === "http") {
+        return res.redirect(301, `https://${req.hostname}${req.url}`);
+      }
+
+      res.set({
+        "CF-Cache-Status": "DYNAMIC",
+      });
 
       res.statusCode = 200;
       res.send("content");
@@ -101,9 +143,43 @@ export class Server {
       res.send("content");
     });
 
+    app.get("/cached_miss_then_hit-nohttps-200", (req, res) => {
+      /* No HTTPS redirect */
+
+      res.set({
+        "CF-Cache-Status": this.purged ? "MISS" : "HIT",
+      });
+      this.purged = false;
+
+      res.statusCode = 200;
+      res.send("content");
+    });
+
     app.get("/nocache-nohttps-200", (req, res) => {
       /* No CF-Cache-Status header */
       /* No HTTPS redirect */
+
+      res.statusCode = 200;
+      res.send("content");
+    });
+
+    app.get("/nocache_always_miss-nohttps-200", (req, res) => {
+      /* No HTTPS redirect */
+
+      res.set({
+        "CF-Cache-Status": "MISS",
+      });
+
+      res.statusCode = 200;
+      res.send("content");
+    });
+
+    app.get("/nocache_dynamic-nohttps-200", (req, res) => {
+      /* No HTTPS redirect */
+
+      res.set({
+        "CF-Cache-Status": "DYNAMIC",
+      });
 
       res.statusCode = 200;
       res.send("content");

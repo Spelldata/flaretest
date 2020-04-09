@@ -32,11 +32,51 @@ test("Cached, force HTTPS redirect, 200", async () => {
   ])).resolves.toBeUndefined();
 }, 10000);
 
+test("Cached (MISS on first access, HIT on next access), force HTTPS redirect, 200", async () => {
+  await expect(flaretest.run([
+    {
+      paths: [
+        "/cached_miss_then_hit-https-200",
+      ],
+      cached: true,
+      redirectHttps: true,
+      status: 200,
+    },
+  ])).resolves.toBeUndefined();
+}, 30000);
+
 test("Not cached, force HTTPS redirect, 200", async () => {
   await expect(flaretest.run([
     {
       paths: [
         "/nocache-https-200",
+      ],
+      cached: false,
+      redirectHttps: true,
+      status: 200,
+    },
+  ])).resolves.toBeUndefined();
+}, 10000);
+
+test("Not cached (always MISS), force HTTPS redirect, 200", async () => {
+  // If CF-Cache-Status is always MISS, treat the content is not cached
+  await expect(flaretest.run([
+    {
+      paths: [
+        "/nocache_always_miss-https-200",
+      ],
+      cached: false,
+      redirectHttps: true,
+      status: 200,
+    },
+  ])).resolves.toBeUndefined();
+}, 30000);
+
+test("Not cached (DYNAMIC), force HTTPS redirect, 200", async () => {
+  await expect(flaretest.run([
+    {
+      paths: [
+        "/nocache_dynamic-https-200",
       ],
       cached: false,
       redirectHttps: true,
@@ -58,11 +98,51 @@ test("Cached, no HTTPS redirect, 200", async () => {
   ])).resolves.toBeUndefined();
 }, 10000);
 
+test("Cached (MISS on first access, HIT on next access), no HTTPS redirect, 200", async () => {
+  await expect(flaretest.run([
+    {
+      paths: [
+        "/cached_miss_then_hit-nohttps-200",
+      ],
+      cached: true,
+      redirectHttps: false,
+      status: 200,
+    },
+  ])).resolves.toBeUndefined();
+}, 30000);
+
 test("Not cached, no HTTPS redirect, 200", async () => {
   await expect(flaretest.run([
     {
       paths: [
         "/nocache-nohttps-200",
+      ],
+      cached: false,
+      redirectHttps: false,
+      status: 200,
+    },
+  ])).resolves.toBeUndefined();
+}, 30000);
+
+test("Not cached (always MISS), no HTTPS redirect, 200", async () => {
+  // If CF-Cache-Status is always MISS, treat the content is not cached
+  await expect(flaretest.run([
+    {
+      paths: [
+        "/nocache_always_miss-nohttps-200",
+      ],
+      cached: false,
+      redirectHttps: false,
+      status: 200,
+    },
+  ])).resolves.toBeUndefined();
+}, 30000);
+
+test("Not cached, no HTTPS redirect, 200", async () => {
+  await expect(flaretest.run([
+    {
+      paths: [
+        "/nocache_dynamic-nohttps-200",
       ],
       cached: false,
       redirectHttps: false,
