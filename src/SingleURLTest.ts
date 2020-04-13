@@ -4,7 +4,7 @@ import { strict as assert } from "assert";
 import fetch from "node-fetch";
 import { Headers, Response } from "node-fetch";
 
-import { randomStr, sleep } from "./utils";
+import { randomStr, sleep, generateHttpInfo } from "./utils";
 
 interface SingleURLTestOptions {
   userAgent: string;
@@ -105,10 +105,12 @@ export default class SingleURLTest {
         const secondRes = await this.fetch(res.url);
         await this.assertCached(secondRes, true);
       } else {
-        assert.fail(`CF-Cache-Status might always be ${cfCacheStatus}`);
+        assert.fail(`CF-Cache-Status might always be ${cfCacheStatus}.
+${generateHttpInfo(res)}`);
       }
     } else {
-      assert.fail("CF-Cache-Status is not HIT | MISS | EXPIRED but " + cfCacheStatus);
+      assert.fail(`CF-Cache-Status is not HIT | MISS | EXPIRED but ${cfCacheStatus}.
+${generateHttpInfo(res)}`);
     }
   };
 
@@ -130,9 +132,11 @@ export default class SingleURLTest {
       cfCacheStatus === "REVALIDATED" ||
       cfCacheStatus === "UPDATING"
     ){
-      assert.fail(`Expected no CF-Cache-Status but actually ${cfCacheStatus}`);
+      assert.fail(`Expected no CF-Cache-Status but actually ${cfCacheStatus}.
+${generateHttpInfo(res)}`);
     } else {
-      assert.fail(`Unexpected CF-Cache-Status value ${cfCacheStatus}`);
+      assert.fail(`Unexpected CF-Cache-Status value ${cfCacheStatus}.
+${generateHttpInfo(res)}`);
     }
   };
 
@@ -141,7 +145,8 @@ export default class SingleURLTest {
     const contentEncoding = this.res.headers.get("Content-Encoding");
     assert.strictEqual(
       contentEncoding, "gzip",
-      `Expected Content-Encoding to be \"gzip\", but actually ${contentEncoding}`,
+      `Expected Content-Encoding to be \"gzip\", but actually ${contentEncoding}
+${generateHttpInfo(this.res)}`,
     );
   };
 
@@ -150,7 +155,8 @@ export default class SingleURLTest {
     const contentEncoding = this.res.headers.get("Content-Encoding");
     assert.strictEqual(
       contentEncoding, null,
-      `Expected Content-Encoding NOT to be set but actually ${contentEncoding} returned.`,
+      `Expected Content-Encoding NOT to be set but actually ${contentEncoding} returned.
+${generateHttpInfo(this.res)}`,
     );
   };
 
@@ -160,10 +166,12 @@ export default class SingleURLTest {
 
     const actualRedirectLocation = res.headers.get("Location");
 
-    const errMsg = `Expected HTTPS redirection enabled but actually disabled. (Actually HTTP status code is ${res.status} and redirecting to ${actualRedirectLocation}.`;
+    const errMsg = `Expected HTTPS redirection enabled but actually disabled. (Actually HTTP status code is ${res.status} and redirecting to ${actualRedirectLocation}.
+${generateHttpInfo(res)}`;
 
     assert.strictEqual(res.status, 301, errMsg);
-    assert.strictEqual(actualRedirectLocation, `https://${this.hostname}${this.path}`);
+    assert.strictEqual(actualRedirectLocation, `https://${this.hostname}${this.path}`, `Expected HTTPS redirection but actually redirected somewhere different.
+${generateHttpInfo(res)}`);
   };
 
   /** Assert if HTTPS redirect is disabled. */
@@ -177,12 +185,13 @@ export default class SingleURLTest {
     );
     assert.notStrictEqual(
       res.status, 302,
-      "Expected status code NOT to be 30x, but actually 302 returned."
+      "Expected status code NOT to be 30x, but actually 302 returned.\n" + generateHttpInfo(res)
     );
     const location = res.headers.get("Location");
     assert.strictEqual(
       location, null,
-      `Expected no Location header field exists, but actually it exists and points to ${location}`
+      `Expected no Location header field exists, but actually it exists and points to ${location}.
+${generateHttpInfo(res)}`
     );
   };
 
@@ -190,7 +199,8 @@ export default class SingleURLTest {
   private expectStatusCode(statusCode: number) {
     assert.strictEqual(
       this.res.status, statusCode,
-      `Expected HTTP status code ${statusCode}, but actually ${this.res.status} returned.`,
+      `Expected HTTP status code ${statusCode}, but actually ${this.res.status} returned.
+${generateHttpInfo(this.res)}`,
     );
   };
 
@@ -203,7 +213,8 @@ export default class SingleURLTest {
     const location = this.res.headers.get("Location");
     assert.strictEqual(
       location, this.redirectTo,
-      `Expected redirection to ${this.redirectTo}, but actually ${location ? "redirected to " + location : "no Location header found"}`,
+      `Expected redirection to ${this.redirectTo}, but actually ${location ? "redirected to " + location : "no Location header found"}
+${generateHttpInfo(this.res)}`,
     );
   };
 
@@ -220,14 +231,19 @@ export default class SingleURLTest {
     const res1_1st = await this.fetch(url1);
     assert.strictEqual(
       res1_1st.headers.get("CF-Cache-Status"), "MISS",
-      `In the first access for the first URL ${url1}, CF-Cache-Status should be MISS but actually ${res1_1st.headers.get("CF-Cache-Status")}. Did you purge cache before the test?`
+      `In the first access for the first URL ${url1}, CF-Cache-Status should be MISS but actually ${res1_1st.headers.get("CF-Cache-Status")}. Did you purge cache before the test?
+${generateHttpInfo(res1_1st)}`
     );
 
     // Second access to url1 should be HIT
     const res1_2nd = await this.fetch(url1);
     assert.strictEqual(
       res1_2nd.headers.get("CF-Cache-Status"), "HIT",
-      `In the second access for the first URL ${url1}, CF-Cache-Status should be HIT but actually ${res1_2nd.headers.get("CF-Cache-Status")}. Maybe this URL is not cached.`
+      `In the second access for the first URL ${url1}, CF-Cache-Status should be HIT but actually ${res1_2nd.headers.get("CF-Cache-Status")}. Maybe this URL is not cached.
+
+${generateHttpInfo(res1_1st, "First Response Information")}
+
+${generateHttpInfo(res1_2nd, "Second Response Information")}`
     );
 
     // First access to url2 should be MISS
@@ -235,14 +251,28 @@ export default class SingleURLTest {
     const res2_1st  = await this.fetch(url2);
     assert.strictEqual(
       res2_1st.headers.get("CF-Cache-Status"), "MISS",
-      `In the first access for the second URL ${url2}, CF-Cache-Status should be MISS but actually ${res2_1st.headers.get("CF-Cache-Status")}. Query string might be ignored to cache contents.`,
+      `In the first access for the second URL ${url2}, CF-Cache-Status should be MISS but actually ${res2_1st.headers.get("CF-Cache-Status")}. Query string might be ignored to cache contents.
+
+${generateHttpInfo(res1_1st, "Response of First Access to First URL")}
+
+${generateHttpInfo(res1_2nd, "Response of Second Access to First URL")}
+
+${generateHttpInfo(res2_1st, "Response of First Access to Second URL")}`,
     );
 
     // Second access to url2 should be HIT
     const res2_2nd = await this.fetch(url2);
     assert.strictEqual(
       res2_2nd.headers.get("CF-Cache-Status"), "HIT",
-      `In the second access for the second URL ${url2}, CF-Cache-Status should be HIT but actually ${res2_2nd.headers.get("CF-Cache-Status")}. Maybe this URL is not cached.`,
+      `In the second access for the second URL ${url2}, CF-Cache-Status should be HIT but actually ${res2_2nd.headers.get("CF-Cache-Status")}. Maybe this URL is not cached.
+
+${generateHttpInfo(res1_1st, "Response of First Access to First URL")}
+
+${generateHttpInfo(res1_2nd, "Response of Second Access to First URL")}
+
+${generateHttpInfo(res2_1st, "Response of First Access to Second URL")}
+
+${generateHttpInfo(res2_2nd, "Response of Second Access to Second URL")}`,
     );
   };
 
@@ -259,7 +289,9 @@ export default class SingleURLTest {
     const res1_1st = await this.fetch(url1);
     assert.strictEqual(
       res1_1st.headers.get("CF-Cache-Status"), "MISS",
-      `In the first access for the first URL ${url1}, CF-Cache-Status should be MISS but actually ${res1_1st.headers.get("CF-Cache-Status")}. Did you purge cache before the test?`
+      `In the first access for the first URL ${url1}, CF-Cache-Status should be MISS but actually ${res1_1st.headers.get("CF-Cache-Status")}. Did you purge cache before the test?
+
+${generateHttpInfo(res1_1st)}`
     );
 
     // Second access to url1 should be HIT
@@ -267,7 +299,11 @@ export default class SingleURLTest {
     const res1_2nd = await this.fetch(url1);
     assert.strictEqual(
       res1_2nd.headers.get("CF-Cache-Status"), "HIT",
-      `In the second access for the first URL ${url1}, CF-Cache-Status should be HIT but actually ${res1_2nd.headers.get("CF-Cache-Status")}. Maybe this URL is not cached.`
+      `In the second access for the first URL ${url1}, CF-Cache-Status should be HIT but actually ${res1_2nd.headers.get("CF-Cache-Status")}. Maybe this URL is not cached.
+
+${generateHttpInfo(res1_1st, "First Response Information")}
+
+${generateHttpInfo(res1_2nd, "Second Response Information")}`
     );
 
     // First access to url2 should be HIT
@@ -275,7 +311,13 @@ export default class SingleURLTest {
     const res2  = await this.fetch(url2);
     assert.strictEqual(
       res2.headers.get("CF-Cache-Status"), "HIT",
-      `In the first access for the second URL ${url2}, CF-Cache-Status should be HIT but actually ${res2.headers.get("CF-Cache-Status")}. Cloudflare may cache by query string.`,
+      `In the first access for the second URL ${url2}, CF-Cache-Status should be HIT but actually ${res2.headers.get("CF-Cache-Status")}. Cloudflare may cache by query string.
+
+${generateHttpInfo(res1_1st, "Response of First Access to First URL")}
+
+${generateHttpInfo(res1_2nd, "Response of Second Access to First URL")}
+
+${generateHttpInfo(res2, "Response of First Access to Second URL")}`
     );
   };
 
@@ -288,7 +330,7 @@ export default class SingleURLTest {
       }),
     });
 
-    await sleep(2000);
+    await sleep(1000);
 
     return res;
   }
