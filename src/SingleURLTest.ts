@@ -330,7 +330,7 @@ ${generateHttpInfo(res2, "Response of First Access to Second URL")}`
       }),
     });
 
-    await sleep(2000);
+    await sleep(1000);
 
     return res;
   }
