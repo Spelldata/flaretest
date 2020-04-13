@@ -225,7 +225,7 @@ test("Expected Cache Level: standard, but detected ignoreQueryString", async () 
       status: 200,
       cacheLevel: "standard",
     },
-  ])).rejects.toThrow(/^In the first access for the second URL https:\/\/localhost\/cache-level-ignore-query-string\?[A-Za-z]+=[A-Za-z]+, CF-Cache-Status should be MISS but actually HIT. Query string might be ignored to cache contents.$/);
+  ])).rejects.toThrow("In the first access for the second URL https:\/\/localhost\/cache-level-ignore-query-string");
 }, 30000);
 
 test("Expected Cache Level: ignoreQueryString, but detected standard", async () => {
@@ -238,5 +238,5 @@ test("Expected Cache Level: ignoreQueryString, but detected standard", async () 
       status: 200,
       cacheLevel: "ignoreQueryString",
     },
-  ])).rejects.toThrow(/^In the first access for the second URL https:\/\/localhost\/cache-level-standard\?[A-Za-z]+=[A-Za-z]+, CF-Cache-Status should be HIT but actually MISS. Cloudflare may cache by query string.$/);
+  ])).rejects.toThrow("In the first access for the second URL https://localhost/cache-level-standard");
 }, 30000);
