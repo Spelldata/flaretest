@@ -6,7 +6,7 @@ Cache rule testing utility for Cloudflare
 
 ## Requirements
 
-Node.js 10+
+Node.js 10.x, 12.x, and 14.x
 
 ## Install
 
