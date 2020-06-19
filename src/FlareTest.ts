@@ -16,7 +16,7 @@ interface FlareTestConfig   {
   cacheLevel?: string;
 }
 
-export default class FlareTest {
+export class FlareTest {
   private hostname: string;
   private userAgents: object;
 

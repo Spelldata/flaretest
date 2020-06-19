@@ -6,7 +6,7 @@ Cache rule testing utility for Cloudflare
 
 ## Requirements
 
-Node.js 10+
+Node.js 10.x, 12.x, and 14.x
 
 ## Install
 
@@ -45,7 +45,7 @@ returns: `Promise<void>` - a Promise object
 Here's an example using Jest:
 
 ```javascript
-import FlareTest from "flaretest"; // or const FlareTest = require("flaretest").default;
+const { FlareTest } = require("flaretest"); // or import FlareTest from "flaretest";
 
 // Initialize flaretest
 const flaretest = new FlareTest("example.com", {
