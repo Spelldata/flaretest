@@ -6,6 +6,7 @@
   "author": "Jumpei Ogawa <jumpei.ogawa@spelldata.co.jp>",
   "license": "Apache-2.0",
   "main": "dist/FlareTest.js",
+  "types": "./dist/types/FlareTest.d.ts",
   "scripts": {
     "build": "tsc",
     "dev": "ts-node FlareTest.ts",
