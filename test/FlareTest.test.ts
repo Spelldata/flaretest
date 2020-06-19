@@ -1,5 +1,5 @@
 import { Server } from "./testutils";
-import FlareTest from "../src/FlareTest";
+import { FlareTest } from "../src/FlareTest";
 
 const flaretest = new FlareTest("localhost", {
   userAgents: {
